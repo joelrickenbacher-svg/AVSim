@@ -123,6 +123,11 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 .row2>*{min-width:0}
 .pm{min-width:36px;height:36px;padding:0;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font:600 17px/1 var(--font);cursor:pointer}
 .pm:active{transform:scale(.94)}
+.cmv{font-family:var(--mono);font-size:13px;color:var(--text);margin:8px 0}
+.src{font-size:12.5px;line-height:1.55;color:var(--muted)}
+.src h4{margin:12px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text)}
+.src ul{margin:0;padding-left:18px}.src li{margin:3px 0}
+.src a{color:var(--accent);word-break:break-word}
 @media (pointer:coarse){.num input[type=number]{font-size:16px}}
 #fldTTD{grid-template-columns:minmax(0,1fr)}
 #fldTTD .num-v input[type=number]{width:92px}
@@ -321,6 +326,8 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
         <div class="note" id="alsNote"></div>
         <div class="num" data-key="alsLen" data-label="ALS-Länge" id="fldAlsLen"></div></div>
       <div class="fld"><span class="lbl">ALS-Helligkeit</span><div class="seg" data-key="alsInt" data-opts="LOW:niedrig|MED:mittel|HIGH:hoch"></div></div>
+      <div class="fld"><span class="lbl">Sichtreferenz bei DH</span><div class="seg" data-key="refLights" data-opts="ONE:CAT I (1 Licht)|THREE:LTS/CAT II/III (3 Lichter)"></div>
+        <div class="note">CAT I: ein Element der Anflugbefeuerung genügt. LTS CAT I, CAT II und III verlangen mindestens 3 aufeinanderfolgende Lichter.</div></div>
       <div class="fld"><span class="lbl">Piste erkennbar</span><div class="seg" data-key="rwDetect" data-opts="CONSERVATIVE:konservativ|NORMAL:normal|OPTIMISTIC:optimistisch"></div></div>
     </div>
   </details>
@@ -332,6 +339,12 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
         <div class="note">Auto: ALS und Schwelle (Lichter) nach RVR, Piste nach Minimum aus VIS und RVR.</div></div>
       <div class="fld"><span class="lbl">Wettermodell</span><div class="seg" data-key="wxModel" data-opts="SEPARATE:Getrennt|SAME:Gleich"></div>
         <div class="note">Getrennt: Nebel reduziert VIS stärker als RVR.</div></div>
+      <div class="fld"><span class="lbl">RVR aus VIS ableiten (CMV)</span>
+        <div class="seg" data-key="cmvLights" data-opts="HI:HI-Feuer|OTHER:Andere|NONE:Keine"></div>
+        <div class="seg" data-key="cmvTime" data-opts="DAY:Tag|NIGHT:Nacht"></div>
+        <div class="cmv" id="cmvOut"></div>
+        <button type="button" class="tbtn wide" id="btnCmv">Als RVR übernehmen</button>
+        <div class="note">EASA-Umrechnung, nur wenn kein RVR gemeldet ist. Nicht für Minima unter 800 m und nicht für Take-off. Unabhängig vom Tag/Nacht-Schalter der Darstellung.</div></div>
       <div class="num" data-key="step" data-label="Auflösung"></div>
     </div>
   </details>
@@ -369,6 +382,33 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 
   <details class="sec card"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Berechnungsfaktoren</summary><div class="sec-b"><div class="fx" id="factors"></div></div></details>
 
+  <details class="sec card"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6"/></svg>Grundlagen &amp; Quellen</summary><div class="sec-b"><div class="src">
+<h4>Was belegt ist</h4>
+<ul>
+<li><b>Sichtreferenz:</b> CAT I verlangt mindestens ein Element (Anflugbefeuerung, Schwelle, TDZ …). LTS CAT I, CAT II und III verlangen ≥ 3 aufeinanderfolgende Lichter (EASA AMC1 CAT.OP.MPA.305(e)).</li>
+<li><b>CMV (VIS → RVR):</b> HI-Anflug-/Pistenfeuer ×1.5 Tag / ×2.0 Nacht, andere Feuer ×1.0 / ×1.5, ohne Feuer ×1.0 (nur Tag). Nicht für Minima &lt; 800 m und nicht für Take-off (EASA AMC10 CAT.OP.MPA.110).</li>
+<li><b>Kontrast &amp; Pistensicht:</b> Koschmieder mit ε = 0.05 (Luftfahrt, WMO). Sichtweite eines Objekts = MOR·ln(C₀/0.05)/ln 20. Die Pistenfaktoren 0.72 / 0.80 / 0.88 entsprechen einem Eigenkontrast C₀ ≈ 0.43 / 0.55 / 0.70.</li>
+<li><b>Lichter (Allard):</b> Die Reichweite wächst nur schwach mit der Intensität: Δln x / Δln I = 1/(2+σx) ≈ 0.2 bei x ≈ MOR. Doppelte Intensität ≈ ×1.15, halbe ≈ ×0.87. Die ALS-Faktoren 1.15 / 1.00 / 0.90 liegen in dieser Größenordnung.</li>
+<li><b>Regen:</b> Reine Regen-Sicht (MOR) ≈ 13–20 km bei 1 mm/h, ≈ 5 km bei 5 mm/h, ≈ 2.5 km bei 15 mm/h (Montero-Martínez &amp; García-García 2025). Extinktionen addieren sich; bei VIS 1500 m ergibt das ×0.91 / ×0.78 / ×0.63. Das passt zu den Faktoren 0.92 / 0.78 / 0.62, aber nur nahe 1500 m. Bei höherer VIS wirkt Regen relativ stärker.</li>
+<li><b>Schnee:</b> Reine Schnee-Sicht ≈ 1.0·PR<sup>−0.70</sup> km (Gultepe et al.), also ≈ 1.6 / 0.7 / 0.4 km bei leicht / mäßig / stark. Das ist deutlich stärker als die App-Faktoren (0.88 / 0.68 / 0.48). Die App-Faktoren verstehen sich deshalb als <i>Zusatzreduktion</i> über die gemeldete VIS hinaus.</li>
+</ul>
+<h4>Was Schätzung bleibt</h4>
+<ul>
+<li>Nebel-, Dunst- und BCFG-Faktoren sowie die Taupunkt-Stufen: keine veröffentlichte Umrechnung gefunden, Heuristik.</li>
+<li>Gemeldete VIS/RVR enthalten Niederschlag und Nebel bereits. Zusatzfaktoren sind daher ein Modellansatz für die schlechtere Schrägsicht, kein Messwert. Mit dem Schalter „Wetter ist bereits in VIS/RVR enthalten“ lassen sie sich abschalten.</li>
+<li>Gleitpfad ohne Wind, ohne Querversatz, ohne Scheibenregen, Blendung und Landescheinwerfer.</li>
+</ul>
+<h4>Quellen</h4>
+<ul>
+<li><a href="https://www.easa.europa.eu/en/downloads/136713/en" target="_blank" rel="noopener">EASA Easy Access Rules Air Operations – AMC10 CAT.OP.MPA.110, AMC1 CAT.OP.MPA.305(e)</a></li>
+<li><a href="https://skybrary.aero/articles/visual-references" target="_blank" rel="noopener">SKYbrary – Visual References</a></li>
+<li><a href="https://old.wmo.int/extranet/pages/prog/www/IMOP/publications/CIMO-Guide/Prelim_2018_ed/8_I_9_en_MR_tc.pdf" target="_blank" rel="noopener">WMO CIMO Guide, Kap. 9 – MOR, Koschmieder, Allard, RVR</a></li>
+<li><a href="https://www.scielo.org.mx/pdf/atm/v39/0187-6236-atm-39-53491.pdf" target="_blank" rel="noopener">Montero-Martínez &amp; García-García (2025), Atmósfera 39 – Regen und MOR</a></li>
+<li><a href="https://meetingorganizer.copernicus.org/FOGDEW2010/FOGDEW2010-112-1.pdf" target="_blank" rel="noopener">Gultepe, Milbrandt &amp; Zhou (2010) – Sicht bei Regen und Schnee</a></li>
+</ul>
+<p>Die Schneekoeffizienten stammen aus einem teils schlecht lesbaren Extrakt und sind als ungefähr zu verstehen.</p>
+</div></div></details>
+
   <div class="actions"><button type="button" class="tbtn wide" id="btnCopy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Ergebnis kopieren</span></button></div>
   <p class="foot">Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
 </section>
@@ -396,7 +436,8 @@ const FOG_VIS={NONE:1.00,BR:0.93,BCFG:0.82,FG:0.55};
 const FOG_RVR={NONE:1.00,BR:0.98,BCFG:0.90,FG:0.68};
 const ALS_DEF={NALS:{lenM:0,lbl:'NALS'},BALS:{lenM:210,lbl:'BALS'},IALS:{lenM:420,lbl:'IALS'},FALS:{lenM:900,lbl:'FALS'}};
 
-const ALS_SEG_M=60; // ALS gilt als sichtbar, wenn das 3. Licht (2×30 m nach dem Außenende) sichtbar ist
+const ALS_SEG_M=60; // 3-Lichter-Regel (LTS CAT I / CAT II / III): 3. Licht = 2×30 m nach dem Außenende
+const CMV_F={HI:{DAY:1.5,NIGHT:2.0},OTHER:{DAY:1.0,NIGHT:1.5},NONE:{DAY:1.0,NIGHT:null}}; // EASA AMC10 CAT.OP.MPA.110
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const altFt=(nm,deg,tch=0)=>tch+Math.tan(deg*Math.PI/180)*nm*NM_TO_FT; // Höhe über Schwelle, Gleitpfad kreuzt Schwelle in TCH
 const nmForAlt=(ft,deg,tch=0)=>{const t=Math.tan(deg*Math.PI/180);return t>0?Math.max(0,ft-tch)/(t*NM_TO_FT):null;};
@@ -465,7 +506,8 @@ function calc(S){
   const mALS=pickMetric(S.visSource,effVis,effRvr,'ALS');
   const mTHR=pickMetric(S.visSource,effVis,effRvr,'THR');
   const mRWY=pickMetric(S.visSource,effVis,effRvr,'RWY');
-  const alsPtM=Math.max(0,alsLenM-Math.min(ALS_SEG_M,alsLenM));
+  const segM=S.refLights==='THREE'?ALS_SEG_M:0;   // CAT I: ≥1 Element genügt
+  const alsPtM=Math.max(0,alsLenM-Math.min(segM,alsLenM));
   const ALS=alsLenM<=0?{nm:null,alt:null}:firstVis({gp,effM:mALS.v,ceil,offM:alsLenM,ptM:alsPtM,detF:alsD,maxNm,step,reqOut:true,tch});
   const THR=firstVis({gp,effM:mTHR.v,ceil,offM:0,detF:thrD,maxNm,step,tch});
   const RWY=firstVis({gp,effM:mRWY.v,ceil,offM:0,detF:rwyD,maxNm,step,tch});
@@ -477,7 +519,7 @@ function calc(S){
     rwy:visAt({distNm:dhNm,gp,ceil,effM:mRWY.v,offM:0,detF:rwyD,tch})};
   return{gp,maxNm,vis,rvr,precip,fog,cavok,pV,pR,fV,fR,ttd,delta,effVis,effRvr,ceil,
     alsLenM,alsLabel,intF,alsD,thrD,rwyD,mALS,mTHR,mRWY,ALS,THR,RWY,elev,da,dhAgl,dhNm,at,
-    tch,wxIncl,alsPtM,
+    tch,wxIncl,alsPtM,segM,
     meetsVis:vis>=(Number(S.minVis)||0),meetsRvr:rvr>=(Number(S.minRvr)||0)}; // Minima gegen GEMELDETE Werte
 }
 // ==/CORE==
@@ -487,7 +529,7 @@ function calc(S){
    ═══════════════════════════════════════════════════════════ */
 const DEFAULTS={glide:3.0,maxNm:6,vis:1500,rvr:1200,visSource:'AUTO',precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,wxModel:'SEPARATE',
   cloud:'BKN',cloudBase:600,useTTD:false,temp:10,dew:8,alsClass:'FALS',alsLen:900,alsInt:'HIGH',rwDetect:'CONSERVATIVE',
-  wxIncl:false,tch:50,elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
+  wxIncl:false,tch:50,refLights:'ONE',cmvLights:'HI',cmvTime:'DAY',elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
 const PRESETS=[
   {id:'std',  label:'Standard', v:{cloud:'BKN',cloudBase:600,vis:1500,rvr:1200,precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,useTTD:false}},
   {id:'cavok',label:'CAVOK',    v:{cloud:'CAVOK',vis:10000,rvr:2000,precip:'NONE',fog:'NONE',autoFog:false}},
@@ -567,6 +609,9 @@ function sync(){
   const cav=S.cloud==='CAVOK',noCeil=cav||S.cloud==='SKC';
   $('#fldAlsLen').hidden=S.alsClass!=='CUSTOM';
   $('#fldTTD').hidden=!S.useTTD;
+  {const f=(CMV_F[S.cmvLights]||CMV_F.HI)[S.cmvTime==='NIGHT'?'NIGHT':'DAY'],ok=f!=null,v=Math.round((Number(S.vis)||0)*(f||0));
+   $('#cmvOut').textContent=ok?`CMV = ${v} m  (VIS ${Math.round(Number(S.vis)||0)} × ${f.toFixed(1)})`:'Ohne Befeuerung bei Nacht nicht anwendbar.';
+   $('#btnCmv').disabled=!ok;$('#btnCmv').dataset.v=ok?v:'';}
   $('#ttdNote').hidden=!(S.useTTD&&!S.wxIncl&&Number(S.dew)>Number(S.temp));
   $('#fldCloudBase').classList.toggle('off',noCeil);
   const dimWx=cav||!!S.wxIncl;
@@ -636,9 +681,9 @@ function renderResults(){
   L.push(`Effektiv: VIS ${f0(R.effVis)} m · RVR ${f0(R.effRvr)} m (Sichtkontakt)`);
   L.push(`ALS-Helligkeit (${S.alsInt}): ×${R.intF.toFixed(2)} · Piste (${S.rwDetect.toLowerCase()}): ×${R.rwyD.toFixed(2)}`);
   L.push(`Ceiling: ${R.ceil==null?'keines':f0(R.ceil)+' ft AGL'}`);
-  L.push(`TCH ${f0(R.tch)} ft · ALS sichtbar ab 3. Licht (${R.alsLenM>0?f0(Math.min(60,R.alsLenM)):'–'} m nach Außenende)`);
+  L.push(`TCH ${f0(R.tch)} ft · Sichtreferenz: ${R.segM>0?'3 Lichter (3. Licht '+f0(Math.min(R.segM,R.alsLenM))+' m nach Außenende)':'1 Licht (CAT I)'}`);
   L.push(`Quelle: ALS ${R.mALS.lbl} · THR ${R.mTHR.lbl} · RWY ${R.mRWY.lbl}`);
-  L.push('Hinweis: Faktoren sind Schätzwerte, nicht aus Messdaten kalibriert. Lichtsicht folgt real dem Allardschen Gesetz, nicht einem linearen Faktor.');
+  L.push('Hinweis: Faktoren sind Schätzwerte, teils aus Literatur hergeleitet (siehe „Grundlagen & Quellen“), nicht kalibriert.');
   $('#factors').textContent=L.join('\n');
 }
 function summaryText(){
@@ -884,6 +929,7 @@ function init(){
   $('#thNight').onclick=()=>setTheme('night',true);
   $$('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
   $('#btnReset').onclick=()=>{const prev={...S};S={...DEFAULTS};changed(true);toast('Zurückgesetzt','Rückgängig',()=>{S=prev;changed(true);});};
+  $('#btnCmv').onclick=()=>{const v=Number($('#btnCmv').dataset.v);if(isFinite(v)&&v>=0){S.rvr=v;changed(true);toast&&toast('RVR auf '+v+' m gesetzt (CMV)');}};
   $('#btnCopy').onclick=()=>{if(R&&!R.error)copyText(summaryText());};
   changed(true);
   setTimeout(()=>{if(!ch.hinted)$('#hint').classList.add('gone');},9000);

@@ -1,4 +1,4 @@
-# AVSim – Approach Visual Acquisition Simulator (v3.2)
+# AVSim – Approach Visual Acquisition Simulator (v3.3)
 
 Heuristisches Trainingsmodell: Ab welcher Distanz werden ALS, Schwelle (THR) und Piste (RWY)
 im Anflug sichtbar – abhängig von VIS/RVR, Wetter, Ceiling, Befeuerung und Minima (DA/DH).
@@ -40,3 +40,10 @@ Falls der Gradle-Wrapper fehlt: *Terminal* → `gradle wrapper --gradle-version 
 - Temperatur/Taupunkt: ±-Taste für negative Werte (die Zifferntastatur am Handy hat kein Minus); Warnung, wenn der Taupunkt über der Temperatur liegt.
 - Temp/Taupunkt-Felder untereinander statt nebeneinander, Eingabefelder auf dem Handy 16 px.
 - Kompaktere Live-Zeile auf schmalen Bildschirmen.
+
+## Änderungen v3.3 (Recherche)
+
+- **Sichtreferenz** wählbar: CAT I = 1 Licht (Standard), LTS CAT I / CAT II / III = 3 aufeinanderfolgende Lichter (EASA AMC1 CAT.OP.MPA.305(e)). In v3.1/v3.2 galt fest die 3-Lichter-Regel.
+- **CMV-Rechner** (Erweitert): RVR aus VIS nach EASA AMC10 CAT.OP.MPA.110 (HI-Feuer 1.5 Tag / 2.0 Nacht, andere 1.0 / 1.5, ohne 1.0), mit Übernahme-Taste.
+- **Grundlagen & Quellen** in der App: welche Werte belegt sind (Regen, Pistenkontrast, Lichtintensität) und welche Schätzung bleiben (Nebel, Taupunkt). Siehe auch `docs/QUELLEN.md`.
+- Quellen-Links öffnen im externen Browser.
