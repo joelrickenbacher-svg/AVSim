@@ -47,3 +47,5 @@ Falls der Gradle-Wrapper fehlt: *Terminal* → `gradle wrapper --gradle-version 
 - **CMV-Rechner** (Erweitert): RVR aus VIS nach EASA AMC10 CAT.OP.MPA.110 (HI-Feuer 1.5 Tag / 2.0 Nacht, andere 1.0 / 1.5, ohne 1.0), mit Übernahme-Taste.
 - **Grundlagen & Quellen** in der App: welche Werte belegt sind (Regen, Pistenkontrast, Lichtintensität) und welche Schätzung bleiben (Nebel, Taupunkt). Siehe auch `docs/QUELLEN.md`.
 - Quellen-Links öffnen im externen Browser.
+
+Änderungsverlauf: siehe `CHANGELOG.md` (auch in der App unter „Changelog“).

@@ -409,8 +409,44 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 <p>Die Schneekoeffizienten stammen aus einem teils schlecht lesbaren Extrakt und sind als ungefähr zu verstehen.</p>
 </div></div></details>
 
+  <details class="sec card" id="changelog"><summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Changelog<span class="sum">v3.3</span></summary><div class="sec-b"><div class="src">
+<h4>v3.3 · 19.11.2026</h4>
+<ul>
+<li>Sichtreferenz wählbar: CAT I (1 Licht) oder LTS CAT I / CAT II / III (3 Lichter).</li>
+<li>CMV-Rechner: RVR aus VIS nach EASA, mit Übernahme-Taste.</li>
+<li>„Grundlagen &amp; Quellen“: belegte Werte, Herleitungen, Schätzungen, Links.</li>
+<li>Changelog in der App.</li>
+</ul>
+<h4>v3.2 · 19.11.2026</h4>
+<ul>
+<li>±-Taste für negative Temperatur und Taupunkt (die Handy-Zifferntastatur hat kein Minus).</li>
+<li>Warnung, wenn der Taupunkt über der Temperatur liegt.</li>
+<li>Feinschliff: Eingabefelder untereinander, 16 px auf dem Handy, kompaktere Live-Zeile.</li>
+</ul>
+<h4>v3.1 · 19.11.2026</h4>
+<ul>
+<li>Minima werden gegen die gemeldeten VIS/RVR geprüft, nicht gegen reduzierte Werte.</li>
+<li>Schalter „Wetter ist bereits in VIS/RVR enthalten“ gegen Doppelzählung.</li>
+<li>TCH (Standard 50 ft): der Gleitpfad kreuzt die Schwelle in dieser Höhe.</li>
+<li>Sichtquelle Auto: ALS und Schwelle nach RVR, Piste nach Minimum aus VIS und RVR.</li>
+<li>Höhe heißt jetzt THRE (Schwellenhöhe).</li>
+</ul>
+<h4>v3.0 · 19.11.2026</h4>
+<ul>
+<li>Komplett neu aufgebaut: Live-Berechnung, Szenario-Chips, Schieberegler, Tabs auf dem Handy.</li>
+<li>Anflugprofil zoom- und verschiebbar (Pinch, Doppeltippen, Buttons), ohne die App zu zoomen.</li>
+<li>Tag/Nacht wechselt die ganze Oberfläche (nur Darstellung), Eingaben werden gespeichert.</li>
+<li>Ergebnis kopieren, Zurücksetzen mit Rückgängig. Android-Projekt (WebView).</li>
+</ul>
+<h4>Frühere Versionen</h4>
+<ul>
+<li>Max. Distanz 6 NM, Niederschlag SHRA, Tag/Nacht-Schalter, neues Layout und überarbeitete Grafik.</li>
+<li>Ausgangspunkt war das HTML-Modell mit ALS-, Schwellen- und Pistensichtbarkeit entlang des Gleitpfads.</li>
+</ul>
+</div></div></details>
+
   <div class="actions"><button type="button" class="tbtn wide" id="btnCopy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Ergebnis kopieren</span></button></div>
-  <p class="foot">Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
+  <p class="foot">AVSim v3.3 · Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
 </section>
 </main>
 
