@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['AVSim-v*', 'v*']
   workflow_dispatch:
 
 permissions:
@@ -23,22 +23,27 @@ jobs:
         with:
           gradle-version: '8.2'
 
+      - name: Version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then V="${GITHUB_REF_NAME#AVSim-}"; else V=dev; fi
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon
 
       - name: Collect release files
         run: |
           mkdir -p out
-          cp app/build/outputs/apk/debug/app-debug.apk "out/AVSim-${GITHUB_REF_NAME}.apk"
-          cp avsim.html "out/avsim_${GITHUB_REF_NAME}.html"
-          zip -qr "out/AVSim-AndroidStudio-${GITHUB_REF_NAME}.zip" . -x '.git/*' '.github/*' 'dist/*' 'out/*' 'build/*' 'app/build/*' '.gradle/*'
+          cp app/build/outputs/apk/debug/app-debug.apk "out/AVSim-${VERSION}.apk"
+          cp avsim.html "out/avsim_${VERSION}.html"
+          zip -qr "out/AVSim-AndroidStudio-${VERSION}.zip" . -x '.git/*' '.github/*' 'dist/*' 'out/*' 'build/*' 'app/build/*' '.gradle/*'
           ls -la out
 
       - name: Create GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          name: AVSim ${{ github.ref_name }}
+          name: AVSim ${{ env.VERSION }}
           generate_release_notes: true
           files: out/*
           body: |
@@ -46,7 +51,7 @@ jobs:
             Quellen und Herleitungen der Modellwerte: docs/QUELLEN.md. Heuristisches Trainingsmodell, nicht für den operationellen Einsatz.
 
       - name: Upload artifacts (manual run)
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:

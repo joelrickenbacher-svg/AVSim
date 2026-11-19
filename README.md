@@ -1,4 +1,4 @@
-# AVSim – Approach Visual Acquisition Simulator (v3.3)
+# AVSim – Approach Visual Acquisition Simulator (v3.4)
 
 Heuristisches Trainingsmodell: Ab welcher Distanz werden ALS, Schwelle (THR) und Piste (RWY)
 im Anflug sichtbar – abhängig von VIS/RVR, Wetter, Ceiling, Befeuerung und Minima (DA/DH).

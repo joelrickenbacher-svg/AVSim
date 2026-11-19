@@ -2,13 +2,15 @@
 
 Alle nennenswerten Änderungen an AVSim. Neueste Version oben. Dieselbe Liste steht in der App unter „Changelog“.
 
+## v3.4 – 2026-11-19
+- Changelog in der App und im Repo, Versionsanzeige im Footer.
+- Release-Workflow startet bei Tags `AVSim-v*` (und `v*`) und baut APK, HTML und ZIP.
+
 ## v3.3 – 2026-11-19
 - Sichtreferenz wählbar: CAT I (1 Licht) oder LTS CAT I / CAT II / III (3 Lichter).
 - CMV-Rechner: RVR aus VIS nach EASA AMC10 CAT.OP.MPA.110, mit Übernahme-Taste.
 - „Grundlagen & Quellen“ in der App und `docs/QUELLEN.md`: belegte Werte, Herleitungen, Schätzungen.
-- Changelog in der App und im Repo.
 - Android: Quellen-Links öffnen im externen Browser.
-- CI: Release-Workflow baut APK, HTML und ZIP bei Tags `v*`.
 
 ## v3.2 – 2026-11-19
 - ±-Taste für negative Temperatur und Taupunkt (die Handy-Zifferntastatur hat kein Minus).
