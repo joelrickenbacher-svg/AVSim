@@ -123,6 +123,16 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 .row2>*{min-width:0}
 .pm{min-width:36px;height:36px;padding:0;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font:600 17px/1 var(--font);cursor:pointer}
 .pm:active{transform:scale(.94)}
+.obsg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.obsg label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.obsin{width:100%;min-width:0;height:36px;padding:0 9px;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font:600 14px var(--mono);box-sizing:border-box}
+.obsin.txt{font-family:var(--font);font-weight:500}
+.obs-item{border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;margin:8px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.obs-item .h{display:flex;justify-content:space-between;gap:8px;color:var(--text);font-weight:600}
+.obs-item .x{flex:none;min-width:30px;height:30px;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--muted);cursor:pointer}
+.obs-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.obs-imp{width:100%;min-height:80px;margin-top:8px;box-sizing:border-box;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font:12px var(--mono);padding:8px}
+@media (pointer:coarse){.obsin{font-size:16px}}
 .cmv{font-family:var(--mono);font-size:13px;color:var(--text);margin:8px 0}
 .src{font-size:12.5px;line-height:1.55;color:var(--muted)}
 .src h4{margin:12px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text)}
@@ -382,6 +392,23 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 
   <details class="sec card"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Berechnungsfaktoren</summary><div class="sec-b"><div class="fx" id="factors"></div></div></details>
 
+  <details class="sec card" id="obsCard"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Beobachtungen<span class="sum" id="obsSum"></span></summary><div class="sec-b">
+  <div class="note">Trage ein, bei welcher Distanz du ALS, Schwelle oder Piste im Anflug wirklich zum ersten Mal gesehen hast. Die aktuellen Eingaben gelten als Wetterlage. Aus mehreren Beobachtungen leitet die App Korrekturfaktoren ab.</div>
+  <div class="obsg">
+    <label for="obsAls">ALS (NM)<input class="obsin" id="obsAls" type="number" inputmode="decimal" step="0.01" min="0" max="25" placeholder="–"></label>
+    <label for="obsThr">THR (NM)<input class="obsin" id="obsThr" type="number" inputmode="decimal" step="0.01" min="0" max="25" placeholder="–"></label>
+    <label for="obsRwy">RWY (NM)<input class="obsin" id="obsRwy" type="number" inputmode="decimal" step="0.01" min="0" max="25" placeholder="–"></label>
+  </div>
+  <label class="lbl" for="obsNote" style="display:block;margin-bottom:4px">Notiz</label>
+  <input class="obsin txt" id="obsNote" type="text" maxlength="80" placeholder="z. B. Flughafen, Piste, Nebel">
+  <div class="obs-act"><button type="button" class="tbtn wide" id="btnObsAdd">Beobachtung speichern</button></div>
+  <div class="note" id="obsStat" style="margin-top:12px"></div>
+  <label class="sw" id="obsCalSw"><input type="checkbox" data-switch="useCal"><span>Kalibrierung anwenden</span></label>
+  <div id="obsList"></div>
+  <div class="obs-act"><button type="button" class="tbtn wide" id="btnObsCopy">Export kopieren</button><button type="button" class="tbtn wide" id="btnObsImp">Import</button><button type="button" class="tbtn wide" id="btnObsClear">Alle löschen</button></div>
+  <div id="obsImpBox" hidden><textarea class="obs-imp" id="obsImpTxt" placeholder="Exportierten Text hier einfügen"></textarea><div class="obs-act"><button type="button" class="tbtn wide" id="btnObsImpGo">Übernehmen</button></div></div>
+</div></details>
+
   <details class="sec card"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6"/></svg>Grundlagen &amp; Quellen</summary><div class="sec-b"><div class="src">
 <h4>Was belegt ist</h4>
 <ul>
@@ -409,7 +436,12 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 <p>Die Schneekoeffizienten stammen aus einem teils schlecht lesbaren Extrakt und sind als ungefähr zu verstehen.</p>
 </div></div></details>
 
-  <details class="sec card" id="changelog"><summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Changelog<span class="sum">v3.4</span></summary><div class="sec-b"><div class="src">
+  <details class="sec card" id="changelog"><summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Changelog<span class="sum">v3.5</span></summary><div class="sec-b"><div class="src">
+<h4>v3.5 · 19.11.2026</h4>
+<ul>
+<li>Beobachtungen: gesehene Distanzen für ALS, Schwelle und Piste speichern, mit der aktuellen Wetterlage als Kontext.</li>
+<li>Daraus Median-Korrekturfaktoren je Referenz, optional anwendbar („Kalibrierung anwenden“). Export, Import und Löschen mit Rückgängig.</li>
+</ul>
 <h4>v3.4 · 19.11.2026</h4>
 <ul>
 <li>Changelog in der App und im Repo (CHANGELOG.md), Versionsanzeige im Footer.</li>
@@ -450,7 +482,7 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 </div></div></details>
 
   <div class="actions"><button type="button" class="tbtn wide" id="btnCopy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Ergebnis kopieren</span></button></div>
-  <p class="foot">AVSim v3.4 · Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
+  <p class="foot">AVSim v3.5 · Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
 </section>
 </main>
 
@@ -518,6 +550,26 @@ function pickMetric(src,eV,eR,tgt){
   if(tgt==='RWY')return{v:m,lbl:'min(VIS,RVR)'};   // Pistenfläche: beide Werte begrenzen
   return{v:eR,lbl:'RVR'};                          // ALS/Schwelle = Lichter → RVR
 }
+// Beobachtung → Skalierung des Detektionsfaktors, die die beobachtete Erstsicht-Distanz erklärt
+function obsK(snap,ref,dNm){
+  const d=Number(dNm);if(!(d>0))return null;
+  const r=calc({...snap,useCal:false});if(r.error)return null;
+  if(ref==='als'&&!(r.alsLenM>0))return null;
+  const m=ref==='als'?r.mALS.v:ref==='thr'?r.mTHR.v:r.mRWY.v;
+  const df=ref==='als'?r.alsD:ref==='thr'?r.thrD:r.rwyD;
+  const pm=ref==='als'?r.alsPtM:0;
+  if(!(m>0&&df>0))return null;
+  return slantM(d,pm,r.gp,r.tch)/(m*df);
+}
+const median=a=>{const b=a.filter(Number.isFinite).sort((x,y)=>x-y),n=b.length;return n?(n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2):null;};
+function calFactors(list){
+  const out={als:1,thr:1,rwy:1,n:{als:0,thr:0,rwy:0}};
+  for(const k of ['als','thr','rwy']){
+    const arr=(list||[]).map(o=>o.k&&o.k[k]).filter(v=>Number.isFinite(v)&&v>0);
+    out.n[k]=arr.length;const m=median(arr);if(m!=null)out[k]=clamp(m,0.5,1.5);
+  }
+  return out;
+}
 function calc(S){
   const gp=Number(S.glide);
   const tchIn=Number(S.tch);
@@ -542,7 +594,8 @@ function calc(S){
   const alsLenM=S.alsClass==='CUSTOM'?Math.max(0,Number(S.alsLen)||0):(ALS_DEF[S.alsClass]||ALS_DEF.FALS).lenM;
   const alsLabel=S.alsClass==='CUSTOM'?`Eigene (${Math.round(alsLenM)} m)`:(ALS_DEF[S.alsClass]||ALS_DEF.FALS).lbl;
   const intF=INTENSITY[S.alsInt]||1;
-  const alsD=1.00*intF, thrD=0.95*intF, rwyD=RWY_DETECT[S.rwDetect]||0.80;
+  const cal=(S.useCal&&S.cal)?S.cal:null, cA=cal?(cal.als||1):1, cT=cal?(cal.thr||1):1, cR=cal?(cal.rwy||1):1;
+  const alsD=1.00*intF*cA, thrD=0.95*intF*cT, rwyD=(RWY_DETECT[S.rwDetect]||0.80)*cR;
   const mALS=pickMetric(S.visSource,effVis,effRvr,'ALS');
   const mTHR=pickMetric(S.visSource,effVis,effRvr,'THR');
   const mRWY=pickMetric(S.visSource,effVis,effRvr,'RWY');
@@ -559,7 +612,7 @@ function calc(S){
     rwy:visAt({distNm:dhNm,gp,ceil,effM:mRWY.v,offM:0,detF:rwyD,tch})};
   return{gp,maxNm,vis,rvr,precip,fog,cavok,pV,pR,fV,fR,ttd,delta,effVis,effRvr,ceil,
     alsLenM,alsLabel,intF,alsD,thrD,rwyD,mALS,mTHR,mRWY,ALS,THR,RWY,elev,da,dhAgl,dhNm,at,
-    tch,wxIncl,alsPtM,segM,
+    tch,wxIncl,alsPtM,segM,calUsed:!!cal,cal:{als:cA,thr:cT,rwy:cR},
     meetsVis:vis>=(Number(S.minVis)||0),meetsRvr:rvr>=(Number(S.minRvr)||0)}; // Minima gegen GEMELDETE Werte
 }
 // ==/CORE==
@@ -569,7 +622,7 @@ function calc(S){
    ═══════════════════════════════════════════════════════════ */
 const DEFAULTS={glide:3.0,maxNm:6,vis:1500,rvr:1200,visSource:'AUTO',precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,wxModel:'SEPARATE',
   cloud:'BKN',cloudBase:600,useTTD:false,temp:10,dew:8,alsClass:'FALS',alsLen:900,alsInt:'HIGH',rwDetect:'CONSERVATIVE',
-  wxIncl:false,tch:50,refLights:'ONE',cmvLights:'HI',cmvTime:'DAY',elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
+  wxIncl:false,tch:50,useCal:false,refLights:'ONE',cmvLights:'HI',cmvTime:'DAY',elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
 const PRESETS=[
   {id:'std',  label:'Standard', v:{cloud:'BKN',cloudBase:600,vis:1500,rvr:1200,precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,useTTD:false}},
   {id:'cavok',label:'CAVOK',    v:{cloud:'CAVOK',vis:10000,rvr:2000,precip:'NONE',fog:'NONE',autoFog:false}},
@@ -598,6 +651,61 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const dec=st=>{const s=String(st);return s.includes('.')?s.split('.')[1].length:0;};
 function load(){try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&typeof j==='object'){
   for(const k of Object.keys(DEFAULTS)){if(k in j&&typeof j[k]===typeof DEFAULTS[k]&&(typeof j[k]!=='number'||isFinite(j[k])))S[k]=j[k];}}}catch(e){}}
+/* ═══ Beobachtungen / Kalibrierung ═══ */
+const KEY_O='avsim.obs.v1';let OBS=[];
+function loadObs(){try{const j=JSON.parse(localStorage.getItem(KEY_O)||'[]');if(Array.isArray(j))OBS=j.filter(validObs).slice(-200);}catch(e){}}
+function saveObs(){try{localStorage.setItem(KEY_O,JSON.stringify(OBS));}catch(e){}}
+function validObs(o){return o&&typeof o==='object'&&o.snap&&typeof o.snap==='object'&&o.obs&&o.k&&typeof o.k==='object';}
+const fnm=x=>x==null?'–':Number(x).toFixed(2);
+function renderObsStat(){
+  const c=calFactors(OBS),n=OBS.length;
+  $('#obsSum').textContent=n?String(n):'';
+  const part=(k,l)=>c.n[k]?`${l} ×${c[k].toFixed(2)} (n=${c.n[k]})`:`${l} –`;
+  const enough=Math.max(c.n.als,c.n.thr,c.n.rwy)>=3;
+  $('#obsStat').textContent=n?`${n} Beobachtung${n===1?'':'en'} · Median-Korrektur: ${part('als','ALS')} · ${part('thr','THR')} · ${part('rwy','RWY')}. ${enough?'':'Aussagekräftig ab etwa 3 Beobachtungen pro Referenz.'}`:'Noch keine Beobachtungen gespeichert.';
+  const sw=$('#obsCalSw');sw.style.opacity=n?1:.45;sw.style.pointerEvents=n?'':'none';
+}
+function renderObsList(){
+  const box=$('#obsList');box.textContent='';
+  OBS.slice().reverse().forEach(o=>{
+    const d=new Date(o.t),ds=isNaN(d)?'':d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const sn=o.snap||{},wx=[sn.cloud,sn.precip&&sn.precip!=='NONE'?sn.precip:'',sn.fog&&sn.fog!=='NONE'?sn.fog:''].filter(Boolean).join(' ');
+    const row=(k,l)=>o.obs[k]==null?'':`${l}: beob. ${fnm(o.obs[k])} NM · Modell ${fnm(o.pred&&o.pred[k])} NM${o.k[k]!=null?` · ×${o.k[k].toFixed(2)}`:''}`;
+    const div=document.createElement('div');div.className='obs-item';
+    const h=document.createElement('div');h.className='h';
+    const t=document.createElement('span');t.textContent=`${ds} · VIS ${Math.round(sn.vis||0)} / RVR ${Math.round(sn.rvr||0)} m · ${wx}`;
+    const x=document.createElement('button');x.type='button';x.className='x';x.textContent='×';x.setAttribute('aria-label','Beobachtung löschen');
+    x.onclick=()=>{OBS=OBS.filter(e=>e!==o);saveObs();renderObsList();changed(true);};
+    h.append(t,x);div.append(h);
+    ['als','thr','rwy'].forEach(k=>{const r=row(k,k.toUpperCase());if(r){const l=document.createElement('div');l.textContent=r;div.append(l);}});
+    if(o.note){const l=document.createElement('div');l.textContent='„'+o.note+'“';div.append(l);}
+    box.append(div);
+  });
+}
+function addObs(){
+  const rd=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)&&v>0&&v<=25?v:null;};
+  const ob={als:rd('#obsAls'),thr:rd('#obsThr'),rwy:rd('#obsRwy')};
+  if(ob.als==null&&ob.thr==null&&ob.rwy==null){toast('Mindestens eine Distanz (NM) eintragen');return;}
+  const snap={...S};delete snap.cal;
+  const r0=calc({...snap,useCal:false});
+  if(r0.error){toast(r0.error);return;}
+  let ign=false;if(ob.als!=null&&!(r0.alsLenM>0)){ob.als=null;ign=true;}
+  if(ign&&ob.thr==null&&ob.rwy==null){toast('Ohne ALS gibt es nichts zu speichern');return;}
+  const pred={als:r0.alsLenM>0?r0.ALS.nm:null,thr:r0.THR.nm,rwy:r0.RWY.nm};
+  const k={als:ob.als!=null?obsK(snap,'als',ob.als):null,thr:ob.thr!=null?obsK(snap,'thr',ob.thr):null,rwy:ob.rwy!=null?obsK(snap,'rwy',ob.rwy):null};
+  OBS.push({id:Date.now(),t:new Date().toISOString(),snap,obs:ob,pred,k,note:String($('#obsNote').value||'').slice(0,80)});
+  OBS=OBS.slice(-200);saveObs();
+  ['#obsAls','#obsThr','#obsRwy','#obsNote'].forEach(i=>{$(i).value='';});
+  renderObsList();changed(true);toast(ign?'Gespeichert (ALS-Wert ignoriert, kein ALS gewählt)':'Beobachtung gespeichert');
+}
+function importObs(){
+  let j;try{j=JSON.parse($('#obsImpTxt').value);}catch(e){toast('Import: Text ist kein gültiges JSON');return;}
+  if(!Array.isArray(j)){toast('Import: Liste erwartet');return;}
+  const have=new Set(OBS.map(o=>o.id));let n=0;
+  j.filter(validObs).forEach(o=>{if(!have.has(o.id)){OBS.push(o);have.add(o.id);n++;}});
+  OBS.sort((a,b)=>String(a.t).localeCompare(String(b.t)));OBS=OBS.slice(-200);
+  saveObs();renderObsList();changed(true);$('#obsImpTxt').value='';$('#obsImpBox').hidden=true;toast(`${n} Beobachtung${n===1?'':'en'} importiert`);
+}
 let saveT=0;
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
 
@@ -722,6 +830,7 @@ function renderResults(){
   L.push(`ALS-Helligkeit (${S.alsInt}): ×${R.intF.toFixed(2)} · Piste (${S.rwDetect.toLowerCase()}): ×${R.rwyD.toFixed(2)}`);
   L.push(`Ceiling: ${R.ceil==null?'keines':f0(R.ceil)+' ft AGL'}`);
   L.push(`TCH ${f0(R.tch)} ft · Sichtreferenz: ${R.segM>0?'3 Lichter (3. Licht '+f0(Math.min(R.segM,R.alsLenM))+' m nach Außenende)':'1 Licht (CAT I)'}`);
+  if(R.calUsed)L.push(`Kalibrierung aus Beobachtungen: ALS ×${R.cal.als.toFixed(2)} · THR ×${R.cal.thr.toFixed(2)} · RWY ×${R.cal.rwy.toFixed(2)}`);
   L.push(`Quelle: ALS ${R.mALS.lbl} · THR ${R.mTHR.lbl} · RWY ${R.mRWY.lbl}`);
   L.push('Hinweis: Faktoren sind Schätzwerte, teils aus Literatur hergeleitet (siehe „Grundlagen & Quellen“), nicht kalibriert.');
   $('#factors').textContent=L.join('\n');
@@ -946,8 +1055,8 @@ function toast(msg,actionLabel,action){
   if(actionLabel){b.hidden=false;b.textContent=actionLabel;b.onclick=()=>{action();t.classList.remove('show');};}else{b.hidden=true;}
   t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),actionLabel?5000:1800);
 }
-function copyText(txt){
-  const done=()=>toast('Ergebnis kopiert');
+function copyText(txt,msg){
+  const done=()=>toast(msg||'Ergebnis kopiert');
   if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done,()=>fallback());}else fallback();
   function fallback(){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.select();
     try{document.execCommand('copy');done();}catch(e){toast('Kopieren nicht möglich');}ta.remove();}
@@ -955,12 +1064,12 @@ function copyText(txt){
 
 let pending=false;
 function changed(now){
-  const run=()=>{pending=false;R=calc(S);sync();renderResults();if(!R.error)scheduleDraw();save();};
+  const run=()=>{pending=false;S.cal=calFactors(OBS);R=calc(S);sync();renderResults();renderObsStat();if(!R.error)scheduleDraw();save();};
   if(now){run();}else if(!pending){pending=true;later(run);}
 }
 
 function init(){
-  load();
+  load();loadObs();
   let th=null;try{th=localStorage.getItem(KEY_T);}catch(e){}
   if(th!=='day'&&th!=='night')th=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'day':'night';
   setTheme(th,false);
@@ -968,6 +1077,12 @@ function init(){
   $('#thDay').onclick=()=>setTheme('day',true);
   $('#thNight').onclick=()=>setTheme('night',true);
   $$('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+  $('#btnObsAdd').onclick=addObs;
+  $('#btnObsCopy').onclick=()=>{if(OBS.length)copyText(JSON.stringify(OBS),'Beobachtungen kopiert');else toast('Keine Beobachtungen zum Exportieren');};
+  $('#btnObsImp').onclick=()=>{const b=$('#obsImpBox');b.hidden=!b.hidden;};
+  $('#btnObsImpGo').onclick=importObs;
+  $('#btnObsClear').onclick=()=>{if(!OBS.length)return;const prev=OBS;OBS=[];saveObs();renderObsList();changed(true);toast('Alle Beobachtungen gelöscht','Rückgängig',()=>{OBS=prev;saveObs();renderObsList();changed(true);});};
+  renderObsList();
   $('#btnReset').onclick=()=>{const prev={...S};S={...DEFAULTS};changed(true);toast('Zurückgesetzt','Rückgängig',()=>{S=prev;changed(true);});};
   $('#btnCmv').onclick=()=>{const v=Number($('#btnCmv').dataset.v);if(isFinite(v)&&v>=0){S.rvr=v;changed(true);toast&&toast('RVR auf '+v+' m gesetzt (CMV)');}};
   $('#btnCopy').onclick=()=>{if(R&&!R.error)copyText(summaryText());};

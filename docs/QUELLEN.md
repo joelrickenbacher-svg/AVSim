@@ -32,3 +32,7 @@ Reine Schnee-Sicht ≈ 1.01·PR^-0.70 km (Gultepe, Milbrandt & Zhou 2010; Koeffi
 - WMO CIMO Guide Kap. 9: https://old.wmo.int/extranet/pages/prog/www/IMOP/publications/CIMO-Guide/Prelim_2018_ed/8_I_9_en_MR_tc.pdf
 - Montero-Martínez & García-García 2025: https://www.scielo.org.mx/pdf/atm/v39/0187-6236-atm-39-53491.pdf
 - Gultepe, Milbrandt & Zhou 2010: https://meetingorganizer.copernicus.org/FOGDEW2010/FOGDEW2010-112-1.pdf
+
+## Kalibrierung (v3.5)
+
+Beobachtete Erstsicht-Distanz d → Faktor k = Schrägdistanz(d) / (Sichtweite × Detektionsfaktor). Die App nimmt den Median von k je Referenz. Das ist eine Schätzung aus wenigen Einzelbeobachtungen: Sichtangaben sind subjektiv (Streuung der Beobachter laut WMO etwa 15 bis 30 %), und die Wetterlage entspricht den Eingaben zum Zeitpunkt des Speicherns.

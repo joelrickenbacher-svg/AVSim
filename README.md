@@ -1,4 +1,4 @@
-# AVSim – Approach Visual Acquisition Simulator (v3.4)
+# AVSim – Approach Visual Acquisition Simulator (v3.5)
 
 Heuristisches Trainingsmodell: Ab welcher Distanz werden ALS, Schwelle (THR) und Piste (RWY)
 im Anflug sichtbar – abhängig von VIS/RVR, Wetter, Ceiling, Befeuerung und Minima (DA/DH).
@@ -49,3 +49,7 @@ Falls der Gradle-Wrapper fehlt: *Terminal* → `gradle wrapper --gradle-version 
 - Quellen-Links öffnen im externen Browser.
 
 Änderungsverlauf: siehe `CHANGELOG.md` (auch in der App unter „Changelog“).
+
+## Kalibrierung mit eigenen Beobachtungen (v3.5)
+
+Im Ergebnis-Tab unter „Beobachtungen“ speicherst du, bei welcher Distanz du ALS, Schwelle oder Piste zum ersten Mal gesehen hast. Aus der beobachteten Distanz und den damaligen Eingaben wird pro Beobachtung ein Skalierungsfaktor für die Detektionsschwelle berechnet. Der Median je Referenz (begrenzt auf 0.5 bis 1.5) lässt sich mit „Kalibrierung anwenden“ zuschalten. Aussagekräftig ist das erst ab etwa 3 Beobachtungen pro Referenz und bei ähnlichen Bedingungen. Die Daten liegen nur im Browser bzw. in der App (localStorage).

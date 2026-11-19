@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an AVSim. Neueste Version oben. Dieselbe Liste steht in der App unter „Changelog“.
 
+## v3.5 – 2026-11-19
+- Beobachtungen: gesehene Distanzen für ALS, Schwelle und Piste speichern, mit der aktuellen Wetterlage als Kontext.
+- Median-Korrekturfaktoren je Referenz (0.5 bis 1.5), optional anwendbar mit „Kalibrierung anwenden“.
+- Export (Kopieren), Import und Löschen (alles mit Rückgängig). Daten bleiben lokal auf dem Gerät.
+
 ## v3.4 – 2026-11-19
 - Changelog in der App und im Repo, Versionsanzeige im Footer.
 - Release-Workflow startet bei Tags `AVSim-v*` (und `v*`) und baut APK, HTML und ZIP.
