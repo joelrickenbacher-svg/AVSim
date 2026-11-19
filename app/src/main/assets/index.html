@@ -117,7 +117,9 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 .sec-b{padding:2px 14px 14px;display:flex;flex-direction:column;gap:14px}
 .lbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .fld{display:flex;flex-direction:column;gap:7px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.row2>*{min-width:0}
+.row2 .num-v input[type=number]{width:68px;min-width:0}
 .note{font-size:12px;color:var(--muted)}
 .note.warn{color:var(--warn)}
 
@@ -277,6 +279,8 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
   <details class="sec card" open>
     <summary><svg class="ic" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></svg>Wetter<span class="sum" id="sumWx"></span></summary>
     <div class="sec-b">
+      <div class="fld"><label class="sw"><input type="checkbox" data-switch="wxIncl"><span>Wetter ist bereits in VIS/RVR enthalten</span></label>
+        <div class="note">An: keine Zusatzreduktion durch Niederschlag, Nebel oder Taupunkt (vermeidet Doppelzählung). Aus: Faktoren schätzen die schlechtere Schrägsicht.</div></div>
       <div class="fld"><span class="lbl">Wolken</span><div class="seg grid3" data-key="cloud" data-opts="CAVOK:CAVOK|SKC:SKC|FEW:FEW|SCT:SCT|BKN:BKN|OVC:OVC"></div>
         <div class="num" data-key="cloudBase" data-label="Wolkenbasis (Ceiling)" id="fldCloudBase"></div>
         <div class="note" id="cloudNote"></div></div>
@@ -285,7 +289,7 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
       <div class="fld" id="fldFog"><span class="lbl">Nebel / Dunst</span><div class="seg" data-key="fog" data-opts="NONE:Kein|BR:BR|BCFG:BCFG|FG:FG"></div>
         <label class="sw"><input type="checkbox" data-switch="autoFog"><span>Automatisch aus VIS/RVR ableiten</span></label></div>
       <div class="note warn" id="wxNote" hidden>CAVOK: Niederschlag und Nebel werden ignoriert.</div>
-      <div class="fld"><label class="sw"><input type="checkbox" data-switch="useTTD"><span>Temperatur / Taupunkt einbeziehen</span></label>
+      <div class="fld" id="fldTTDsw"><label class="sw"><input type="checkbox" data-switch="useTTD"><span>Temperatur / Taupunkt einbeziehen</span></label>
         <div class="row2" id="fldTTD"><div class="num" data-key="temp" data-label="Temp."></div><div class="num" data-key="dew" data-label="Taupunkt"></div></div></div>
     </div>
   </details>
@@ -295,7 +299,8 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
     <div class="sec-b">
       <div class="num" data-key="glide" data-label="Gleitwinkel"></div>
       <div class="num" data-key="maxNm" data-label="Max. Distanz"></div>
-      <div class="row2"><div class="num" data-key="elev" data-label="Platzhöhe"></div><div class="num" data-key="da" data-label="DA"></div></div>
+      <div class="row2"><div class="num" data-key="elev" data-label="THRE"></div><div class="num" data-key="da" data-label="DA"></div></div>
+      <div class="num" data-key="tch" data-label="TCH"></div>
       <div class="note" id="dhNote"></div>
       <div class="row2"><div class="num" data-key="minVis" data-label="Min. VIS"></div><div class="num" data-key="minRvr" data-label="Min. RVR"></div></div>
     </div>
@@ -316,7 +321,7 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
     <summary><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Erweitert</summary>
     <div class="sec-b">
       <div class="fld"><span class="lbl">Sichtquelle</span><div class="seg" data-key="visSource" data-opts="AUTO:Auto|VIS:VIS|RVR:RVR|MIN:Minimum"></div>
-        <div class="note">Auto: ALS nach VIS, Schwelle nach Minimum, Piste nach RVR.</div></div>
+        <div class="note">Auto: ALS und Schwelle (Lichter) nach RVR, Piste nach Minimum aus VIS und RVR.</div></div>
       <div class="fld"><span class="lbl">Wettermodell</span><div class="seg" data-key="wxModel" data-opts="SEPARATE:Getrennt|SAME:Gleich"></div>
         <div class="note">Getrennt: Nebel reduziert VIS stärker als RVR.</div></div>
       <div class="num" data-key="step" data-label="Auflösung"></div>
@@ -357,7 +362,7 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
   <details class="sec card"><summary><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Berechnungsfaktoren</summary><div class="sec-b"><div class="fx" id="factors"></div></div></details>
 
   <div class="actions"><button type="button" class="tbtn wide" id="btnCopy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Ergebnis kopieren</span></button></div>
-  <p class="foot">Heuristisches Trainingsmodell – nicht für den operationellen Einsatz.</p>
+  <p class="foot">Heuristisches Trainingsmodell – Faktoren sind Schätzwerte, nicht kalibriert. Nicht für den operationellen Einsatz.</p>
 </section>
 </main>
 
@@ -383,10 +388,11 @@ const FOG_VIS={NONE:1.00,BR:0.93,BCFG:0.82,FG:0.55};
 const FOG_RVR={NONE:1.00,BR:0.98,BCFG:0.90,FG:0.68};
 const ALS_DEF={NALS:{lenM:0,lbl:'NALS'},BALS:{lenM:210,lbl:'BALS'},IALS:{lenM:420,lbl:'IALS'},FALS:{lenM:900,lbl:'FALS'}};
 
+const ALS_SEG_M=60; // ALS gilt als sichtbar, wenn das 3. Licht (2×30 m nach dem Außenende) sichtbar ist
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-const altFt=(nm,deg)=>Math.tan(deg*Math.PI/180)*nm*NM_TO_FT;
-const nmForAlt=(ft,deg)=>{const t=Math.tan(deg*Math.PI/180);return t>0?ft/(t*NM_TO_FT):null;};
-const slantM=(nm,offM,deg)=>{const gM=nm*M_PER_NM,hM=Math.max(0,gM-offM),aM=altFt(nm,deg)*FT_TO_M;return Math.hypot(hM,aM);};
+const altFt=(nm,deg,tch=0)=>tch+Math.tan(deg*Math.PI/180)*nm*NM_TO_FT; // Höhe über Schwelle, Gleitpfad kreuzt Schwelle in TCH
+const nmForAlt=(ft,deg,tch=0)=>{const t=Math.tan(deg*Math.PI/180);return t>0?Math.max(0,ft-tch)/(t*NM_TO_FT):null;};
+const slantM=(nm,offM,deg,tch=0)=>{const gM=nm*M_PER_NM,hM=Math.max(0,gM-offM),aM=altFt(nm,deg,tch)*FT_TO_M;return Math.hypot(hM,aM);};
 const ceilFt=(ct,base)=>{const t=String(ct||'').toUpperCase().trim();return(t==='BKN'||t==='OVC')?Math.max(0,base):null;};
 function ttdF(d){const dd=Math.max(0,d);
   if(dd<=0.5)return{v:0.50,r:0.75,lbl:'Δ≤0.5°C'};
@@ -396,34 +402,38 @@ function ttdF(d){const dd=Math.max(0,d);
   if(dd<=5.0)return{v:0.93,r:0.97,lbl:'Δ≤5°C'};
   return{v:1.00,r:1.00,lbl:'Δ>5°C'};}
 const inferFog=l=>l<=600?'FG':l<=1200?'BCFG':l<=5000?'BR':'NONE';
-function firstVis({gp,effM,ceil,offM,detF,maxNm,step,reqOut}){
+function firstVis({gp,effM,ceil,offM,ptM,detF,maxNm,step,reqOut,tch=0}){
+  const pm=ptM==null?offM:ptM;
   const n=Math.floor(maxNm/step);
   for(let i=0;i<=n;i++){
     const nm=maxNm-i*step;
     if(reqOut&&!(nm*M_PER_NM>offM))continue;
-    const a=altFt(nm,gp);
+    const a=altFt(nm,gp,tch);
     if(ceil!==null&&a>ceil)continue;
-    if(slantM(nm,offM,gp)<=effM*detF)return{nm,alt:a};
+    if(slantM(nm,pm,gp,tch)<=effM*detF)return{nm,alt:a};
   }
   return{nm:null,alt:null};
 }
-function visAt({distNm,gp,ceil,effM,offM,detF}){
+function visAt({distNm,gp,ceil,effM,offM,ptM,detF,tch=0}){
+  const pm=ptM==null?offM:ptM;
   if(distNm==null)return false;
-  const a=altFt(distNm,gp);
+  const a=altFt(distNm,gp,tch);
   if(ceil!==null&&a>ceil)return false;
-  return slantM(distNm,offM,gp)<=effM*detF;
+  return slantM(distNm,pm,gp,tch)<=effM*detF;
 }
 function pickMetric(src,eV,eR,tgt){
   const m=Math.min(eV,eR);
   if(src==='VIS')return{v:eV,lbl:'VIS'};
   if(src==='RVR')return{v:eR,lbl:'RVR'};
   if(src==='MIN')return{v:m,lbl:'min(VIS,RVR)'};
-  if(tgt==='ALS')return{v:eV,lbl:'VIS'};
-  if(tgt==='THR')return{v:m,lbl:'min(VIS,RVR)'};
-  return{v:eR,lbl:'RVR'};
+  if(tgt==='RWY')return{v:m,lbl:'min(VIS,RVR)'};   // Pistenfläche: beide Werte begrenzen
+  return{v:eR,lbl:'RVR'};                          // ALS/Schwelle = Lichter → RVR
 }
 function calc(S){
   const gp=Number(S.glide);
+  const tchIn=Number(S.tch);
+  const tch=(S.tch==null||S.tch===''||!Number.isFinite(tchIn))?50:clamp(tchIn,0,100);
+  const wxIncl=!!S.wxIncl;
   if(!(gp>0))return{error:'Der Gleitwinkel muss größer als 0° sein.'};
   const maxNm=clamp(Number(S.maxNm)||6,1,25);
   const step=clamp(Number(S.step)||0.01,0.005,0.05);
@@ -432,11 +442,12 @@ function calc(S){
   if(S.autoFog)fog=inferFog(Math.min(vis,rvr));
   const cavok=S.cloud==='CAVOK';
   if(cavok){vis=Math.max(vis,10000);rvr=Math.max(rvr,Math.min(10000,vis));precip='NONE';fog='NONE';}
-  const pV=(PRECIP_VIS[precip]||{})[S.pInt]||1, pR=(PRECIP_RVR[precip]||{})[S.pInt]||1;
+  const pV=wxIncl?1:((PRECIP_VIS[precip]||{})[S.pInt]||1), pR=wxIncl?1:((PRECIP_RVR[precip]||{})[S.pInt]||1);
   let fV,fR;
-  if(S.wxModel==='SAME'){fV=fR=FOG_VIS[fog]||1;}else{fV=FOG_VIS[fog]||1;fR=FOG_RVR[fog]||1;}
+  if(wxIncl){fV=fR=1;}
+  else if(S.wxModel==='SAME'){fV=fR=FOG_VIS[fog]||1;}else{fV=FOG_VIS[fog]||1;fR=FOG_RVR[fog]||1;}
   const delta=Number(S.temp)-Number(S.dew);
-  const ttd=S.useTTD?ttdF(delta):{v:1,r:1,lbl:''};
+  const ttd=(S.useTTD&&!wxIncl)?ttdF(delta):{v:1,r:1,lbl:''};
   const effVis=vis*pV*fV*ttd.v, effRvr=rvr*pR*fR*ttd.r;
   const ceil=ceilFt(S.cloud,Math.max(0,Number(S.cloudBase)||0));
   const alsLenM=S.alsClass==='CUSTOM'?Math.max(0,Number(S.alsLen)||0):(ALS_DEF[S.alsClass]||ALS_DEF.FALS).lenM;
@@ -446,18 +457,20 @@ function calc(S){
   const mALS=pickMetric(S.visSource,effVis,effRvr,'ALS');
   const mTHR=pickMetric(S.visSource,effVis,effRvr,'THR');
   const mRWY=pickMetric(S.visSource,effVis,effRvr,'RWY');
-  const ALS=alsLenM<=0?{nm:null,alt:null}:firstVis({gp,effM:mALS.v,ceil,offM:alsLenM,detF:alsD,maxNm,step,reqOut:true});
-  const THR=firstVis({gp,effM:mTHR.v,ceil,offM:0,detF:thrD,maxNm,step});
-  const RWY=firstVis({gp,effM:mRWY.v,ceil,offM:0,detF:rwyD,maxNm,step});
+  const alsPtM=Math.max(0,alsLenM-Math.min(ALS_SEG_M,alsLenM));
+  const ALS=alsLenM<=0?{nm:null,alt:null}:firstVis({gp,effM:mALS.v,ceil,offM:alsLenM,ptM:alsPtM,detF:alsD,maxNm,step,reqOut:true,tch});
+  const THR=firstVis({gp,effM:mTHR.v,ceil,offM:0,detF:thrD,maxNm,step,tch});
+  const RWY=firstVis({gp,effM:mRWY.v,ceil,offM:0,detF:rwyD,maxNm,step,tch});
   const elev=Math.max(0,Number(S.elev)||0), da=Math.max(0,Number(S.da)||0);
-  const dhAgl=da-elev, dhNm=nmForAlt(Math.max(0,dhAgl),gp);
+  const dhAgl=da-elev, dhNm=nmForAlt(Math.max(0,dhAgl),gp,tch);
   const at={
-    als:alsLenM<=0?null:visAt({distNm:dhNm,gp,ceil,effM:mALS.v,offM:alsLenM,detF:alsD}),
-    thr:visAt({distNm:dhNm,gp,ceil,effM:mTHR.v,offM:0,detF:thrD}),
-    rwy:visAt({distNm:dhNm,gp,ceil,effM:mRWY.v,offM:0,detF:rwyD})};
+    als:alsLenM<=0?null:visAt({distNm:dhNm,gp,ceil,effM:mALS.v,offM:alsLenM,ptM:alsPtM,detF:alsD,tch}),
+    thr:visAt({distNm:dhNm,gp,ceil,effM:mTHR.v,offM:0,detF:thrD,tch}),
+    rwy:visAt({distNm:dhNm,gp,ceil,effM:mRWY.v,offM:0,detF:rwyD,tch})};
   return{gp,maxNm,vis,rvr,precip,fog,cavok,pV,pR,fV,fR,ttd,delta,effVis,effRvr,ceil,
     alsLenM,alsLabel,intF,alsD,thrD,rwyD,mALS,mTHR,mRWY,ALS,THR,RWY,elev,da,dhAgl,dhNm,at,
-    meetsVis:effVis>=(Number(S.minVis)||0),meetsRvr:effRvr>=(Number(S.minRvr)||0)};
+    tch,wxIncl,alsPtM,
+    meetsVis:vis>=(Number(S.minVis)||0),meetsRvr:rvr>=(Number(S.minRvr)||0)}; // Minima gegen GEMELDETE Werte
 }
 // ==/CORE==
 
@@ -466,7 +479,7 @@ function calc(S){
    ═══════════════════════════════════════════════════════════ */
 const DEFAULTS={glide:3.0,maxNm:6,vis:1500,rvr:1200,visSource:'AUTO',precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,wxModel:'SEPARATE',
   cloud:'BKN',cloudBase:600,useTTD:false,temp:10,dew:8,alsClass:'FALS',alsLen:900,alsInt:'HIGH',rwDetect:'CONSERVATIVE',
-  elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
+  wxIncl:false,tch:50,elev:1400,da:1600,minVis:800,minRvr:550,step:0.01};
 const PRESETS=[
   {id:'std',  label:'Standard', v:{cloud:'BKN',cloudBase:600,vis:1500,rvr:1200,precip:'NONE',pInt:'MOD',fog:'NONE',autoFog:false,useTTD:false}},
   {id:'cavok',label:'CAVOK',    v:{cloud:'CAVOK',vis:10000,rvr:2000,precip:'NONE',fog:'NONE',autoFog:false}},
@@ -483,7 +496,7 @@ const NUM={ // Slider-Konfiguration (pow = nichtlinear: feinere Auflösung bei k
   cloudBase:{min:0,max:3000,step:50,pow:1.6,unit:'ft',slider:1,inStep:10},
   glide:{min:2,max:6,step:0.1,pow:1,unit:'°',slider:1,inStep:0.1,imin:0.5},
   maxNm:{min:2,max:15,step:0.5,pow:1,unit:'NM',slider:1,inStep:0.5,imin:1,imax:25},
-  elev:{min:0,max:10000,step:10,unit:'ft'}, da:{min:0,max:12000,step:10,unit:'ft'},
+  tch:{min:0,max:100,step:5,unit:'ft'}, elev:{min:0,max:10000,step:10,unit:'ft'}, da:{min:0,max:12000,step:10,unit:'ft'},
   minVis:{min:0,max:10000,step:10,unit:'m'}, minRvr:{min:0,max:10000,step:10,unit:'m'},
   temp:{min:-60,max:60,step:0.1,unit:'°C',imin:-60}, dew:{min:-60,max:60,step:0.1,unit:'°C',imin:-60},
   alsLen:{min:0,max:3000,step:10,unit:'m'}, step:{min:0.005,max:0.05,step:0.005,unit:'NM'},
@@ -545,15 +558,18 @@ function sync(){
   $('#fldAlsLen').hidden=S.alsClass!=='CUSTOM';
   $('#fldTTD').hidden=!S.useTTD;
   $('#fldCloudBase').classList.toggle('off',noCeil);
-  $('#fldPrecip').style.opacity=cav?.45:1;$('#fldPrecip').style.pointerEvents=cav?'none':'';
-  $('#fldFog').style.opacity=cav?.45:1;$('#fldFog').style.pointerEvents=cav?'none':'';
+  const dimWx=cav||!!S.wxIncl;
+  $('#fldPrecip').style.opacity=dimWx?.45:1;$('#fldPrecip').style.pointerEvents=dimWx?'none':'';
+  $('#fldFog').style.opacity=dimWx?.45:1;$('#fldFog').style.pointerEvents=dimWx?'none':'';
+  $('#fldTTDsw').style.opacity=S.wxIncl?.45:1;$('#fldTTDsw').style.pointerEvents=S.wxIncl?'none':'';
   $('#wxNote').hidden=!cav;
   $('[data-key=fog]').classList.toggle('disabled',!!S.autoFog);
   $('#cloudNote').textContent=cav?'CAVOK: VIS ≥ 10 km, keine Wolkenbasis.':S.cloud==='SKC'?'SKC: wolkenlos, keine Wolkenbasis.':(S.cloud==='BKN'||S.cloud==='OVC')?'BKN/OVC: Wolkenbasis begrenzt die Sicht (Ceiling).':'FEW/SCT: kein Ceiling im Modell.';
   const alsM=S.alsClass==='CUSTOM'?(Number(S.alsLen)||0):(ALS_DEF[S.alsClass]||ALS_DEF.FALS).lenM;
   $('#alsNote').textContent=S.alsClass==='NALS'?'Keine Anflugbefeuerung (0 m).':`Länge ${Math.round(alsM)} m`;
   const dh=(Number(S.da)||0)-(Number(S.elev)||0);
-  $('#dhNote').textContent=dh>0?`DH = ${Math.round(dh)} ft AGL`:'DA liegt nicht über der Platzhöhe – bitte prüfen.';
+  const tchV=Number.isFinite(Number(S.tch))&&S.tch!==''?Number(S.tch):50;
+  $('#dhNote').textContent=dh<=0?'DA liegt nicht über der Schwellenhöhe – bitte prüfen.':dh<tchV?`DH ${Math.round(dh)} ft liegt unter dem TCH – Bezugspunkt = Schwelle.`:`DH = ${Math.round(dh)} ft (DA − THRE, Schwellenhöhe) · TCH = Gleitpfadhöhe über der Schwelle`;
   $('#dhNote').classList.toggle('warn',dh<=0);
   $('#sumVis').textContent=`${Math.round(S.vis)} / ${Math.round(S.rvr)} m`;
   $('#sumWx').textContent=S.cloud+(S.cloud==='BKN'||S.cloud==='OVC'?' '+Math.round(S.cloudBase):'');
@@ -584,8 +600,8 @@ function renderResults(){
   const ve=$('#verdict');ve.dataset.state=v.state;$('#vIcon').innerHTML=v.icon;$('#vHead').textContent=v.head;
   $('#vSub').textContent=`${v.sub} · DH ${f0(R.dhAgl)} ft @ ${f2(R.dhNm)} NM`;
   $('#minPills').innerHTML=
-    `<span class="pill ${R.meetsVis?'ok':'bad'}">VIS ${f0(R.effVis)} ${R.meetsVis?'≥':'<'} ${f0(S.minVis)} m</span>`+
-    `<span class="pill ${R.meetsRvr?'ok':'bad'}">RVR ${f0(R.effRvr)} ${R.meetsRvr?'≥':'<'} ${f0(S.minRvr)} m</span>`;
+    `<span class="pill ${R.meetsVis?'ok':'bad'}" title="Minima-Vergleich mit gemeldeten Werten">VIS ${f0(R.vis)} ${R.meetsVis?'≥':'<'} ${f0(S.minVis)} m</span>`+
+    `<span class="pill ${R.meetsRvr?'ok':'bad'}" title="Minima-Vergleich mit gemeldeten Werten">RVR ${f0(R.rvr)} ${R.meetsRvr?'≥':'<'} ${f0(S.minRvr)} m</span>`;
   const live=$('#live');live.dataset.state=v.state;live.style.setProperty('--state',`var(--${v.state})`);
   $('#liveSt').textContent=v.short;
   $('#liveVals').textContent=`ALS ${R.alsLenM>0?f2(R.ALS.nm):'–'} · THR ${f2(R.THR.nm)} · RWY ${f2(R.RWY.nm)} NM`;
@@ -600,19 +616,25 @@ function renderResults(){
   };
   $('#refs').innerHTML=card('als','ALS',R.ALS,R.mALS.lbl,R.at.als,R.alsLenM<=0)+card('thr','THR',R.THR,R.mTHR.lbl,R.at.thr,false)+card('rwy','RWY',R.RWY,R.mRWY.lbl,R.at.rwy,false);
 
-  const L=[`Niederschlag (${R.precip}): VIS ×${R.pV.toFixed(2)}   RVR ×${R.pR.toFixed(2)}`,
-           `Nebel (${R.fog}): VIS ×${R.fV.toFixed(2)}   RVR ×${R.fR.toFixed(2)}`];
-  if(S.useTTD)L.push(`Temp/Taupunkt (Δ ${R.delta.toFixed(1)} °C): VIS ×${R.ttd.v.toFixed(2)}   RVR ×${R.ttd.r.toFixed(2)}`);
-  L.push(`Effektiv: VIS ${f0(R.effVis)} m · RVR ${f0(R.effRvr)} m`);
+  const L=[];
+  if(R.wxIncl)L.push('Wetter in VIS/RVR enthalten: keine Zusatzreduktion');
+  L.push(`Niederschlag (${R.precip}): VIS ×${R.pV.toFixed(2)}   RVR ×${R.pR.toFixed(2)}`,
+           `Nebel (${R.fog}): VIS ×${R.fV.toFixed(2)}   RVR ×${R.fR.toFixed(2)}`);
+  if(S.useTTD&&!R.wxIncl)L.push(`Temp/Taupunkt (Δ ${R.delta.toFixed(1)} °C): VIS ×${R.ttd.v.toFixed(2)}   RVR ×${R.ttd.r.toFixed(2)}`);
+  L.push(`Gemeldet: VIS ${f0(R.vis)} m · RVR ${f0(R.rvr)} m (Minima-Vergleich)`);
+  L.push(`Effektiv: VIS ${f0(R.effVis)} m · RVR ${f0(R.effRvr)} m (Sichtkontakt)`);
   L.push(`ALS-Helligkeit (${S.alsInt}): ×${R.intF.toFixed(2)} · Piste (${S.rwDetect.toLowerCase()}): ×${R.rwyD.toFixed(2)}`);
   L.push(`Ceiling: ${R.ceil==null?'keines':f0(R.ceil)+' ft AGL'}`);
+  L.push(`TCH ${f0(R.tch)} ft · ALS sichtbar ab 3. Licht (${R.alsLenM>0?f0(Math.min(60,R.alsLenM)):'–'} m nach Außenende)`);
+  L.push(`Quelle: ALS ${R.mALS.lbl} · THR ${R.mTHR.lbl} · RWY ${R.mRWY.lbl}`);
+  L.push('Hinweis: Faktoren sind Schätzwerte, nicht aus Messdaten kalibriert. Lichtsicht folgt real dem Allardschen Gesetz, nicht einem linearen Faktor.');
   $('#factors').textContent=L.join('\n');
 }
 function summaryText(){
   const v=verdictOf(),at=x=>x==null?'–':x?'sichtbar':'nicht sichtbar';
   return ['AVSim – Approach Visual Acquisition',
     `GP ${R.gp.toFixed(1)}° · DH ${f0(R.dhAgl)} ft AGL (DA ${f0(R.da)} ft MSL) @ ${f2(R.dhNm)} NM`,
-    `Eff. VIS/RVR: ${f0(R.effVis)} / ${f0(R.effRvr)} m · Ceiling: ${R.ceil==null?'keines':f0(R.ceil)+' ft'} · ${R.alsLabel}`,
+    `Gemeldet VIS/RVR: ${f0(R.vis)} / ${f0(R.rvr)} m · Eff.: ${f0(R.effVis)} / ${f0(R.effRvr)} m · Ceiling: ${R.ceil==null?'keines':f0(R.ceil)+' ft'} · ${R.alsLabel}`,
     `ALS: ${f2(R.ALS.nm)} NM (${f0(R.ALS.alt)} ft AGL) – bei DH ${at(R.at.als)}`,
     `THR: ${f2(R.THR.nm)} NM (${f0(R.THR.alt)} ft AGL) – bei DH ${at(R.at.thr)}`,
     `RWY: ${f2(R.RWY.nm)} NM (${f0(R.RWY.alt)} ft AGL) – bei DH ${at(R.at.rwy)}`,
@@ -627,7 +649,7 @@ const svg=$('#chartSvg');
 const MAXZ=40;
 
 function fullDomain(){
-  const top=Math.max(altFt(R.maxNm,R.gp),R.dhAgl+60,(R.ceil||0)+60,400)*1.08;
+  const top=Math.max(altFt(R.maxNm,R.gp,R.tch),R.dhAgl+60,(R.ceil||0)+60,400)*1.08;
   return{x0:-Math.max(0.25,R.maxNm*0.05),x1:R.maxNm,y0:-top*0.07,y1:top};
 }
 const zoomLevel=()=>(ch.full.x1-ch.full.x0)/(ch.view.x1-ch.view.x0);
@@ -657,7 +679,7 @@ function resetView(){ch.view={...ch.full};ch.zoomed=false;svg.style.touchAction=
 function zoomFinal(){ // Endanflug: ab Schwelle bis etwas hinter den ersten Sichtpunkt / DH
   const pts=[R.dhNm||0,R.ALS.nm||0,R.THR.nm||0,R.RWY.nm||0].filter(x=>x>0);
   const nmMax=clamp(Math.max(1.2,...pts)*1.25,0.8,R.maxNm);
-  const ftMax=Math.max(altFt(nmMax,R.gp),R.dhAgl+40)*1.12;
+  const ftMax=Math.max(altFt(nmMax,R.gp,R.tch),R.dhAgl+40)*1.12;
   setView({x0:ch.full.x0,x1:nmMax,y0:-ftMax*0.07,y1:ftMax});
 }
 function centerZoom(fac){const g=geom();zoomAt(g.l+g.iW/2,g.t+g.iH/2,fac);}
@@ -705,14 +727,14 @@ function drawChart(){
   s+=`<rect class="rwy" x="${Math.min(rx0,rx1)}" y="${gy0}" width="${Math.abs(rx1-rx0)}" height="9"/><line class="rwyc" x1="${rx0}" y1="${gy0+4.5}" x2="${rx1}" y2="${gy0+4.5}"/>`;
 
   // Gleitpfad (Gerade) + Füllung
-  const ax=X(R.maxNm),ay=Y(altFt(R.maxNm,R.gp)),ox=X(0),oy=Y(0);
-  s+=`<polygon class="gpf" points="${ax},${ay} ${ax},${oy} ${ox},${oy}"/><line class="gp" x1="${ax}" y1="${ay}" x2="${ox}" y2="${oy}"/>`;
+  const ax=X(R.maxNm),ay=Y(altFt(R.maxNm,R.gp,R.tch)),ox=X(0),oy=Y(R.tch),gy=Y(0);
+  s+=`<polygon class="gpf" points="${ax},${ay} ${ax},${gy} ${ox},${gy} ${ox},${oy}"/><line class="gp" x1="${ax}" y1="${ay}" x2="${ox}" y2="${oy}"/>`;
   // NM-Punkte auf dem Gleitpfad
-  for(let n=1;n<=R.maxNm;n++){const px=X(n);if(px<l-4||px>l+iW+4)continue;s+=`<circle cx="${px}" cy="${Y(altFt(n,R.gp))}" r="2.6" fill="var(--gp)" opacity=".55"/>`;}
+  for(let n=1;n<=R.maxNm;n++){const px=X(n);if(px<l-4||px>l+iW+4)continue;s+=`<circle cx="${px}" cy="${Y(altFt(n,R.gp,R.tch))}" r="2.6" fill="var(--gp)" opacity=".55"/>`;}
   // GP-Beschriftung entlang der Linie
-  {const nlo=Math.max(0,v.x0,nmForAlt(Math.max(0,v.y0),R.gp)||0),nhi=Math.min(R.maxNm,v.x1,nmForAlt(v.y1*0.92,R.gp)||R.maxNm);
-   if(nhi-nlo>0.05){const nm=nlo+(nhi-nlo)*0.62,cx=X(nm),cy=Y(altFt(nm,R.gp));
-     const a=Math.atan2(Y(altFt(nm-0.01,R.gp))-Y(altFt(nm+0.01,R.gp)),X(nm-0.01)-X(nm+0.01))*180/Math.PI;
+  {const nlo=Math.max(0,v.x0,nmForAlt(Math.max(0,v.y0),R.gp,R.tch)||0),nhi=Math.min(R.maxNm,v.x1,nmForAlt(v.y1*0.92,R.gp,R.tch)||R.maxNm);
+   if(nhi-nlo>0.05){const nm=nlo+(nhi-nlo)*0.62,cx=X(nm),cy=Y(altFt(nm,R.gp,R.tch));
+     const a=Math.atan2(Y(altFt(nm-0.01,R.gp,R.tch))-Y(altFt(nm+0.01,R.gp,R.tch)),X(nm-0.01)-X(nm+0.01))*180/Math.PI;
      s+=`<text class="gpt" text-anchor="middle" transform="rotate(${a.toFixed(1)} ${cx} ${cy})" x="${cx}" y="${cy-9}">${R.gp.toFixed(1)}°</text>`;}}
 
   // ALS am Boden
