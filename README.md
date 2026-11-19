@@ -1,4 +1,4 @@
-# AVSim – Approach Visual Acquisition Simulator (v3.1)
+# AVSim – Approach Visual Acquisition Simulator (v3.2)
 
 Heuristisches Trainingsmodell: Ab welcher Distanz werden ALS, Schwelle (THR) und Piste (RWY)
 im Anflug sichtbar – abhängig von VIS/RVR, Wetter, Ceiling, Befeuerung und Minima (DA/DH).
@@ -34,3 +34,9 @@ Falls der Gradle-Wrapper fehlt: *Terminal* → `gradle wrapper --gradle-version 
 - Sichtquelle Auto: ALS und Schwelle (Lichter) nach RVR, Piste nach min(VIS, RVR).
 - ALS gilt als sichtbar, sobald das 3. Licht (60 m nach dem Außenende) sichtbar ist.
 - Höhe heißt jetzt THRE (Schwellenhöhe). Die Faktoren sind Schätzwerte und nicht kalibriert.
+
+## Änderungen v3.2
+
+- Temperatur/Taupunkt: ±-Taste für negative Werte (die Zifferntastatur am Handy hat kein Minus); Warnung, wenn der Taupunkt über der Temperatur liegt.
+- Temp/Taupunkt-Felder untereinander statt nebeneinander, Eingabefelder auf dem Handy 16 px.
+- Kompaktere Live-Zeile auf schmalen Bildschirmen.

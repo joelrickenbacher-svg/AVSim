@@ -77,9 +77,11 @@ svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;str
 /* Live-Streifen (nur Handy, Tab „Eingabe“) */
 .live{display:none;flex:none;align-items:center;gap:10px;padding:7px calc(14px + env(safe-area-inset-right)) 7px calc(14px + env(safe-area-inset-left));
   background:var(--surface2);border-bottom:1px solid var(--line);font-size:12.5px}
-.live .st{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--state,var(--muted))}
+.live .st{flex:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--state,var(--muted))}
 .live .st i{width:9px;height:9px;border-radius:50%;background:var(--state,var(--muted))}
 .live .vals{margin-left:auto;font-family:var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+@media (max-width:400px){.live{gap:8px;font-size:11.5px}.live .vals{font-size:11px}}
 
 /* ───────────── Layout ───────────── */
 main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,370px) 1fr}
@@ -119,6 +121,11 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
 .fld{display:flex;flex-direction:column;gap:7px}
 .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .row2>*{min-width:0}
+.pm{min-width:36px;height:36px;padding:0;border:1px solid var(--line2);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font:600 17px/1 var(--font);cursor:pointer}
+.pm:active{transform:scale(.94)}
+@media (pointer:coarse){.num input[type=number]{font-size:16px}}
+#fldTTD{grid-template-columns:minmax(0,1fr)}
+#fldTTD .num-v input[type=number]{width:92px}
 .row2 .num-v input[type=number]{width:68px;min-width:0}
 .note{font-size:12px;color:var(--muted)}
 .note.warn{color:var(--warn)}
@@ -290,7 +297,8 @@ details.sec[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
         <label class="sw"><input type="checkbox" data-switch="autoFog"><span>Automatisch aus VIS/RVR ableiten</span></label></div>
       <div class="note warn" id="wxNote" hidden>CAVOK: Niederschlag und Nebel werden ignoriert.</div>
       <div class="fld" id="fldTTDsw"><label class="sw"><input type="checkbox" data-switch="useTTD"><span>Temperatur / Taupunkt einbeziehen</span></label>
-        <div class="row2" id="fldTTD"><div class="num" data-key="temp" data-label="Temp."></div><div class="num" data-key="dew" data-label="Taupunkt"></div></div></div>
+        <div class="row2" id="fldTTD"><div class="num" data-key="temp" data-label="Temp."></div><div class="num" data-key="dew" data-label="Taupunkt"></div></div>
+        <div class="note warn" id="ttdNote" hidden>Taupunkt liegt über der Temperatur – unplausibel, bitte prüfen.</div></div>
     </div>
   </details>
 
@@ -532,11 +540,13 @@ function buildSegs(){
 function buildNums(){
   $$('.num').forEach(el=>{
     const key=el.dataset.key,c=NUM[key];
-    el.innerHTML=`<div class="num-h"><label for="n_${key}" class="lbl">${el.dataset.label}</label><span class="num-v"><input id="n_${key}" type="number" inputmode="decimal" step="${c.inStep||c.step}" min="${c.imin!=null?c.imin:c.min}"${c.imax!=null?` max="${c.imax}"`:''}><u>${c.unit}</u></span></div>`
+    el.innerHTML=`<div class="num-h"><label for="n_${key}" class="lbl">${el.dataset.label}</label><span class="num-v">${(c.imin!=null&&c.imin<0)?'<button type="button" class="pm" aria-label="Vorzeichen wechseln (+/−)" title="Vorzeichen wechseln">±</button>':''}<input id="n_${key}" type="number" inputmode="decimal" step="${c.inStep||c.step}" min="${c.imin!=null?c.imin:c.min}"${c.imax!=null?` max="${c.imax}"`:''}><u>${c.unit}</u></span></div>`
       +(c.slider?`<input class="rng" type="range" min="0" max="1000" step="1" aria-label="${el.dataset.label}">`:'');
     const num=$('input[type=number]',el),rng=$('.rng',el);
     num.addEventListener('input',()=>{const v=parseFloat(num.value.replace(',','.'));if(isFinite(v)){S[key]=v;if(rng)rng.value=valToSlider(v,c);changed(false);}});
     num.addEventListener('blur',()=>{num.value=S[key];});
+    const pm=$('.pm',el);
+    if(pm)pm.addEventListener('click',()=>{const v=-(Number(S[key])||0);S[key]=v;num.value=v;changed(false);});
     if(rng)rng.addEventListener('input',()=>{S[key]=sliderToVal(+rng.value,c);changed(false);});
   });
   $$('[data-switch]').forEach(cb=>cb.addEventListener('change',()=>{S[cb.dataset.switch]=cb.checked;changed(true);}));
@@ -557,6 +567,7 @@ function sync(){
   const cav=S.cloud==='CAVOK',noCeil=cav||S.cloud==='SKC';
   $('#fldAlsLen').hidden=S.alsClass!=='CUSTOM';
   $('#fldTTD').hidden=!S.useTTD;
+  $('#ttdNote').hidden=!(S.useTTD&&!S.wxIncl&&Number(S.dew)>Number(S.temp));
   $('#fldCloudBase').classList.toggle('off',noCeil);
   const dimWx=cav||!!S.wxIncl;
   $('#fldPrecip').style.opacity=dimWx?.45:1;$('#fldPrecip').style.pointerEvents=dimWx?'none':'';
@@ -604,7 +615,7 @@ function renderResults(){
     `<span class="pill ${R.meetsRvr?'ok':'bad'}" title="Minima-Vergleich mit gemeldeten Werten">RVR ${f0(R.rvr)} ${R.meetsRvr?'≥':'<'} ${f0(S.minRvr)} m</span>`;
   const live=$('#live');live.dataset.state=v.state;live.style.setProperty('--state',`var(--${v.state})`);
   $('#liveSt').textContent=v.short;
-  $('#liveVals').textContent=`ALS ${R.alsLenM>0?f2(R.ALS.nm):'–'} · THR ${f2(R.THR.nm)} · RWY ${f2(R.RWY.nm)} NM`;
+  $('#liveVals').textContent=`ALS ${R.alsLenM>0?f2(R.ALS.nm):'–'}\u2009·\u2009THR ${f2(R.THR.nm)}\u2009·\u2009RWY ${f2(R.RWY.nm)} NM`;
 
   const card=(k,name,pt,metric,at,off)=>{
     const st=off?'<span class="ref-st na">–</span>':at?'<span class="ref-st ok">✓</span>':'<span class="ref-st bad">✕</span>';
